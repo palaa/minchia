@@ -45,7 +45,7 @@ unsigned int nStakeMinAge = 60 * 60 * 24 * 20;	// minimum age for coin age: 20d
 unsigned int nStakeMaxAge = 60 * 60 * 24 * 40;	// stake age of full weight: 40d
 unsigned int nStakeTargetSpacing = 30;			// 30 sec block spacing
 
-int64 nChainStartTime = 1391393673;
+int64 nChainStartTime = 1406826999;
 int nCoinbaseMaturity = 30;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -68,7 +68,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "MintCoin Signed Message:\n";
+const string strMessageMagic = "minchia Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
@@ -1511,8 +1511,8 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     // Now that the whole chain is irreversibly beyond that time it is applied to all blocks except the
     // two in the chain that violate it. This prevents exploiting the issue against nodes in their
     // initial block download.
-    bool fEnforceBIP30 = true; // Always active in MintCoin
-    bool fStrictPayToScriptHash = true; // Always active in MintCoin
+    bool fEnforceBIP30 = true; // Always active in minchia
+    bool fStrictPayToScriptHash = true; // Always active in minchia
 
     //// issue here: it doesn't know the version
     unsigned int nTxPos;
@@ -2458,7 +2458,7 @@ bool CheckDiskSpace(uint64 nAdditionalBytes)
         string strMessage = _("Warning: Disk space is low!");
         strMiscWarning = strMessage;
         printf("*** %s\n", strMessage.c_str());
-        uiInterface.ThreadSafeMessageBox(strMessage, "MintCoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
+        uiInterface.ThreadSafeMessageBox(strMessage, "minchia", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
         StartShutdown();
         return false;
     }
@@ -2521,9 +2521,9 @@ bool LoadBlockIndex(bool fAllowNew)
     if (fTestNet)
     {
         pchMessageStart[0] = 0xcd;
-        pchMessageStart[1] = 0xf2;
-        pchMessageStart[2] = 0xc0;
-        pchMessageStart[3] = 0xef;
+        pchMessageStart[1] = 0xe2;
+        pchMessageStart[2] = 0xd0;
+        pchMessageStart[3] = 0xcf;
 
         bnProofOfStakeLimit = bnProofOfStakeLimitTestNet; // 0x00000fff PoS base target is fixed in testnet
         bnProofOfWorkLimit = bnProofOfWorkLimitTestNet; // 0x0000ffff PoW base target is fixed in testnet
@@ -2551,7 +2551,7 @@ bool LoadBlockIndex(bool fAllowNew)
             return false;
 
         // Genesis block
-        const char* pszTimestamp = "Feb 2, 2014: The Denver Broncos finally got on the board with a touchdown in the final seconds of the third quarter. But the Seattle Seahawks are dominating the Broncos 36-8";
+        const char* pszTimestamp = "1 agosto 2014 madonna laida porco dio infame maledetto";
         CTransaction txNew;
         txNew.nTime = nChainStartTime;
         txNew.vin.resize(1);
@@ -2564,10 +2564,25 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1391393693;
+        block.nTime    = 1406826999;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 12488421;
+        block.nNonce   = 964956;
 
+	if (false  && (block.GetHash() != hashGenesisBlock)) {
+ 
+                // This will figure out a valid hash and Nonce if you're
+                // creating a different genesis block:
+                    uint256 hashTarget = CBigNum().SetCompact(block.nBits).getuint256();
+                    while (block.GetHash() > hashTarget)
+                       {
+                           ++block.nNonce;
+                           if (block.nNonce == 0)
+                           {
+                               printf("NONCE WRAPPED, incrementing time");
+                               ++block.nTime;
+                           }
+                       }
+        }
         //// debug print
         block.print();
         printf("block.GetHash() == %s\n", block.GetHash().ToString().c_str());
@@ -2575,7 +2590,7 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("block.nTime = %u \n", block.nTime);
         printf("block.nNonce = %u \n", block.nNonce);
 
-        assert(block.hashMerkleRoot == uint256("cf174ca43b1b30e9a27f7fdc20ff9caf626499d023f1f033198fdbadf73ca747"));
+        assert(block.hashMerkleRoot == uint256("803e5318cb4401c9786113bf5782622035ab5dd789f1cb93f501cd4e6ade4310"));
 		assert(block.GetHash() == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet));
 
         // Start new block file
